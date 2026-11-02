@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block titulo %}Clases | FitLife{% endblock %}
+
+{% block contenido %}
+<h1>Clases grupales</h1>
+<p class="suave">Si una clase está llena, puedes entrar a la lista de espera: subirás solo cuando alguien cancele.</p>
+<p id="msg" class="aviso" hidden></p>
+<div id="lista"><p class="suave">Cargando clases...</p></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const ES_SOCIO = {{ user.socio|yesno:"true,false" }};
+
+  // Dibuja el botón según la reserva del socio en esa clase
+  function accion(c) {
+    if (!ES_SOCIO) return '';
+    const r = c.mi_reserva;
+    if (r && r.estado === 'CONFIRMADA') return `<span class="etiqueta CONFIRMADA">Reservada</span>
+      <button class="boton secundario" data-cancelar="${r.id}">Cancelar</button>`;
+    if (r && r.estado === 'EN_ESPERA') return `<span class="etiqueta EN_ESPERA">En espera: lugar ${r.posicion_espera}</span>
+      <button class="boton secundario" data-cancelar="${r.id}">Salir de la lista</button>`;
+    const texto = c.cupos_disponibles > 0 ? 'Reservar' : 'Unirme a la lista de espera';
+    return `<button class="boton" data-reservar="${c.id}">${texto}</button>`;
+  }
+
+  async function cargar() {
+    const r = await api('/api/clases/?proximas=1');
+    if (!r.ok) return;
+    let html = '', diaActual = '';
+    for (const c of r.data) {
+      const d = dia(c.inicio);
+      if (d !== diaActual) { html += `<h2>${esc(d)}</h2>`; diaActual = d; }
+      html += `<article class="tarjeta clase" style="margin-bottom:.7rem">
+        <div class="h">${hora(c.inicio)}</div>
+        <div><h3>${esc(c.nombre)}</h3>
+          <div class="cupos">${esc(c.instructor)}${c.sala ? ', ' + esc(c.sala) : ''}. ${c.duracion_min} min.
+            ${c.confirmadas}/${c.cupo} inscritos${c.en_espera ? `, ${c.en_espera} en espera` : ''}</div></div>
+        <div class="acciones">${accion(c)}</div></article>`;
+    }
+    $('#lista').innerHTML = html || '<p class="suave">No hay clases programadas.</p>';
+  }
+
+  function aviso(texto, ok) {
+    $('#msg').textContent = texto; $('#msg').className = 'aviso ' + (ok ? 'ok' : 'error'); $('#msg').hidden = false;
+  }
+
+  // Un solo listener para todos los botones (reservar y cancelar)
+  $('#lista').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-reservar],[data-cancelar]');
+    if (!b) return;
+    b.disabled = true;
+    const r = b.dataset.reservar
+      ? await api('/api/reservas/', { method: 'POST', body: { clase: Number(b.dataset.reservar) } })
+      : await api(`/api/reservas/${b.dataset.cancelar}/`, { method: 'DELETE' });
+    if (r.ok) {
+      const estado = r.data.estado;
+      aviso(estado === 'CONFIRMADA' ? 'Reserva confirmada.' : estado === 'EN_ESPERA'
+        ? `Quedaste en la lista de espera (lugar ${r.data.posicion_espera}).` : 'Reserva cancelada.', true);
+    } else {
+      aviso(errorTexto(r.data), false);
+    }
+    cargar();
+  });
+
+  cargar();
+</script>
+{% endblock %}

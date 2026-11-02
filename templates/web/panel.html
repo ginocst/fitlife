@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block titulo %}Mi panel | FitLife{% endblock %}
+
+{% block contenido %}
+<h1>Hola, {{ socio.usuario.first_name|default:socio.usuario.username }}</h1>
+
+<div class="panel">
+  <section class="tarjeta">
+    <h2>Mi membresía</h2>
+    {% if membresia %}
+      <p><span class="etiqueta {{ membresia.estado_actual }}">{{ membresia.get_estado_display }}</span>
+        Plan {{ membresia.plan }}</p>
+      {% if membresia.estado_actual == 'ACTIVA' %}
+        <div class="dias">{{ membresia.dias_restantes }}</div><p class="suave">días restantes (hasta el {{ membresia.fecha_fin|date:"d-m-Y" }})</p>
+      {% elif membresia.estado_actual == 'CONGELADA' %}
+        <p>Congelada desde el {{ membresia.congelada_desde|date:"d-m-Y" }}. Los días congelados se te devuelven al reactivarla.</p>
+      {% else %}
+        <p>Venció el {{ membresia.fecha_fin|date:"d-m-Y" }}. Renueva tu plan en recepción.</p>
+      {% endif %}
+    {% else %}
+      <p>Aún no tienes una membresía. Paga tu plan en recepción para activarla.</p>
+    {% endif %}
+  </section>
+
+  <section class="tarjeta qr">
+    <h2>Mi código de acceso</h2>
+    <p class="suave">Muéstralo en el torniquete para entrar y para salir.</p>
+    <img src="{% url 'qr_socio' socio.codigo_qr %}" alt="Código QR de acceso">
+    <code>{{ socio.codigo_qr }}</code>
+  </section>
+</div>
+
+<h2>Mis próximas clases</h2>
+{% if reservas %}
+  <div class="tabla"><table>
+    <tr><th>Clase</th><th>Fecha</th><th>Estado</th></tr>
+    {% for r in reservas %}
+      <tr><td>{{ r.clase.nombre }}</td><td>{{ r.clase.inicio|date:"D d-m H:i" }}</td>
+          <td><span class="etiqueta {{ r.estado }}">{{ r.get_estado_display }}</span>
+              {% if r.posicion_espera %} (lugar {{ r.posicion_espera }}){% endif %}</td></tr>
+    {% endfor %}
+  </table></div>
+{% else %}
+  <p class="suave">No tienes reservas. <a href="{% url 'clases' %}">Ver clases disponibles</a></p>
+{% endif %}
+
+<h2>Mis últimos accesos</h2>
+{% if accesos %}
+  <div class="tabla"><table>
+    <tr><th>Fecha</th><th>Movimiento</th><th>Resultado</th></tr>
+    {% for a in accesos %}
+      <tr><td>{{ a.fecha_hora|date:"d-m H:i" }}</td><td>{{ a.get_tipo_display }}</td>
+          <td><span class="etiqueta {{ a.resultado }}">{{ a.get_resultado_display }}</span> {{ a.motivo }}</td></tr>
+    {% endfor %}
+  </table></div>
+{% else %}
+  <p class="suave">Todavía no registras visitas.</p>
+{% endif %}
+{% endblock %}

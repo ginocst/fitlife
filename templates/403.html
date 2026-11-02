@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block titulo %}Sin permiso | FitLife{% endblock %}
+{% block contenido %}
+<h1>No tienes permiso para ver esta página</h1>
+<p>Tu cuenta no tiene el rol necesario. <a href="{% url 'inicio' %}">Volver al inicio</a></p>
+{% endblock %}

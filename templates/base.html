@@ -1,0 +1,59 @@
+{% load static tz %}<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Token CSRF: el JavaScript lo envía en cada POST/DELETE a la API -->
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <!-- Zona horaria del gimnasio: el JavaScript muestra las horas en ella, no en la del navegador -->
+    {% get_current_timezone as ZONA %}
+    <meta name="zona-horaria" content="{{ ZONA }}" />
+    <link rel="icon" href="data:," />
+    <title>{% block titulo %}FitLife{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}" />
+  </head>
+  <body>
+    <header class="cabecera">
+      <a class="marca" href="{% url 'inicio' %}">FitLife</a>
+      <nav class="menu">
+        {% if user.is_authenticated %} {% if user.is_staff %}
+        <a href="{% url 'recepcion' %}">Recepción</a>
+        <a href="{% url 'dashboard' %}">Aforo</a>
+        <a href="{% url 'clases' %}">Clases</a>
+        <a href="{% url 'admin:index' %}">Administración</a>
+        {% elif user.socio %}
+        <a href="{% url 'panel' %}">Mi panel</a>
+        <a href="{% url 'clases' %}">Clases</a>
+        {% endif %}
+        <!-- Cerrar sesión es un POST (con CSRF), no un enlace: evita cierres de sesión forzados -->
+        <form method="post" action="{% url 'logout' %}" class="salir">
+          {% csrf_token %}<button type="submit">
+            Salir ({{ user.get_short_name|default:user.username }})
+          </button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}">Iniciar sesión</a>
+        <a class="boton" href="{% url 'registro' %}">Hazte socio</a>
+        {% endif %}
+      </nav>
+    </header>
+
+    <main>
+      {% for m in messages %}
+      <p class="aviso {{ m.tags }}">{{ m }}</p>
+      {% endfor %} {% block contenido %}{% endblock %}
+    </main>
+
+    <footer class="pie">
+      FitLife: control de acceso, membresías y reservas de clases.
+    </footer>
+
+    <script src="{% static 'js/app.js' %}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

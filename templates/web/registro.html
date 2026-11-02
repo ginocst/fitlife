@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Hazte socio | FitLife{% endblock %}
+
+{% block contenido %}
+<h1>Hazte socio</h1>
+<p class="suave">Crea tu cuenta y paga tu plan en recepción para activar tu acceso.</p>
+<form method="post" class="formulario" novalidate>
+  {% csrf_token %}
+  {% for campo in form %}
+    <label>{{ campo.label }}
+      {{ campo }}
+      {% if campo.help_text %}<span class="ayuda">{{ campo.help_text|striptags }}</span>{% endif %}
+      {{ campo.errors }}
+    </label>
+  {% endfor %}
+  <button class="boton" type="submit">Crear cuenta</button>
+</form>
+{% endblock %}

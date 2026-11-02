@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{# Personalización del Django Admin: colores de FitLife y accesos directos a las pantallas operativas #}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/admin.css' %}">{% endblock %}
+
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}">FitLife <small>administración</small></a></div>
+{% if user.is_anonymous %}{% include "admin/color_theme_toggle.html" %}{% endif %}
+{% endblock %}
+
+{% block nav-global %}
+{% if user.is_staff %}
+<a class="fl-atajo" href="{% url 'recepcion' %}">Recepción</a>
+<a class="fl-atajo" href="{% url 'dashboard' %}">Aforo en tiempo real</a>
+{% endif %}
+{% endblock %}

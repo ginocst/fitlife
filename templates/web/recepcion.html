@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block titulo %}Recepción | FitLife{% endblock %}
+
+{% block contenido %}
+<h1>Control de acceso</h1>
+<div class="panel">
+  <section class="tarjeta lector">
+    <!-- El lector QR USB funciona como un teclado: escribe el código y presiona Enter en este campo -->
+    <form id="form-lector">
+      <label for="codigo"><strong>Escanea el QR del socio</strong></label>
+      <input id="codigo" name="codigo" autocomplete="off" autofocus placeholder="Esperando lectura...">
+      <button class="boton" type="submit" style="margin-top:.6rem">Validar</button>
+    </form>
+
+    <h3 style="margin-top:1.4rem">Simular una lectura</h3>
+    <p class="suave">Para pruebas sin lector: elige un socio y su código se envía como si se hubiera escaneado.</p>
+    <select id="simulador"><option value="">Elige un socio...</option></select>
+  </section>
+
+  <section id="veredicto" class="veredicto" aria-live="assertive">
+    <p class="suave">El resultado de la lectura aparecerá aquí.</p>
+  </section>
+</div>
+
+<h2>Últimos movimientos de hoy</h2>
+<div class="tabla"><table id="historial"><tr><td class="suave">Sin movimientos.</td></tr></table></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function validar(codigo) {
+    if (!codigo) return;
+    const r = await api('/api/accesos/validar/', { method: 'POST', body: { codigo } });
+    if (!r.ok) { $('#veredicto').className = 'veredicto DENEGADO';
+                  $('#veredicto').innerHTML = `<h2>Error</h2><p>${esc(errorTexto(r.data))}</p>`; return; }
+    const a = r.data;
+    const titulo = a.resultado === 'DENEGADO' ? 'Acceso denegado' : a.tipo === 'SALIDA' ? 'Salida' : 'Adelante';
+    $('#veredicto').className = 'veredicto ' + a.resultado;
+    $('#veredicto').innerHTML = `<h2>${titulo}</h2>
+      <p><strong>${esc(a.socio_nombre || 'Código desconocido')}</strong></p>
+      <p>${esc(a.motivo)}</p><p class="ms">Validado en ${a.tiempo_ms} ms</p>`;
+    cargarHistorial();
+  }
+
+  async function cargarHistorial() {
+    const r = await api('/api/accesos/');
+    if (!r.ok || !r.data.length) return;
+    $('#historial').innerHTML = '<tr><th>Hora</th><th>Socio</th><th>Movimiento</th><th>Resultado</th></tr>' +
+      r.data.slice(0, 10).map(a => `<tr><td>${hora(a.fecha_hora)}</td><td>${esc(a.socio_nombre || a.codigo)}</td>
+        <td>${a.tipo === 'ENTRADA' ? 'Entrada' : 'Salida'}</td>
+        <td><span class="etiqueta ${a.resultado}">${a.resultado === 'PERMITIDO' ? 'Permitido' : 'Denegado'}</span> ${esc(a.motivo)}</td></tr>`).join('');
+  }
+
+  async function cargarSimulador() {
+    const r = await api('/api/socios/');
+    if (!r.ok) return;
+    const ESTADOS = { ACTIVA: 'activa', VENCIDA: 'vencida', CONGELADA: 'congelada', SIN_MEMBRESIA: 'sin membresía' };
+    $('#simulador').innerHTML += r.data.map(s =>
+      `<option value="${s.codigo_qr}">${esc(s.nombre)} (${ESTADOS[s.estado_membresia]})</option>`).join('');
+  }
+
+  $('#form-lector').addEventListener('submit', (e) => {
+    e.preventDefault();
+    validar($('#codigo').value.trim());
+    $('#codigo').value = '';
+    $('#codigo').focus(); // listo para la siguiente lectura
+  });
+  $('#simulador').addEventListener('change', (e) => { validar(e.target.value); e.target.value = ''; $('#codigo').focus(); });
+
+  cargarHistorial();
+  cargarSimulador();
+</script>
+{% endblock %}

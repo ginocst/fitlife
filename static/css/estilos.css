@@ -1,0 +1,420 @@
+/* Estilos de FitLife */
+:root {
+  --tinta: #10302a; /* cabecera, textos fuertes */
+  --papel: #f3f6f2; /* fondo */
+  --tarjeta: #ffffff;
+  --energia: #ff5a1f; /* acciones principales */
+  --ok: #1e8e5a;
+  --alerta: #c98a00;
+  --error: #c8322f;
+  --texto: #1b2421;
+  --suave: #5b6b66;
+  --linea: #d8e0db;
+  --titulos: "Barlow Condensed", "Arial Narrow", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--papel);
+  color: var(--texto);
+  font:
+    16px/1.55 "Barlow",
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+}
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--titulos);
+  line-height: 1.1;
+  margin: 0 0 0.6rem;
+}
+h1 {
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+}
+h2 {
+  font-size: 1.7rem;
+  margin-top: 2rem;
+}
+a {
+  color: var(--tinta);
+}
+.suave {
+  color: var(--suave);
+}
+:focus-visible {
+  outline: 3px solid var(--energia);
+  outline-offset: 2px;
+}
+
+/* ---- Cabecera ---- */
+.cabecera {
+  background: var(--tinta);
+  color: #fff;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.marca {
+  font-family: var(--titulos);
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+.menu a {
+  color: #fff;
+  text-decoration: none;
+}
+.menu a:hover {
+  text-decoration: underline;
+}
+.salir {
+  margin: 0;
+}
+.salir button {
+  background: none;
+  border: 1px solid #ffffff66;
+  color: #fff;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+.pie {
+  text-align: center;
+  padding: 1.2rem;
+  color: var(--suave);
+  font-size: 0.9rem;
+}
+
+/* ---- Botones y formularios ---- */
+.boton,
+button.boton {
+  display: inline-block;
+  background: var(--energia);
+  color: #fff !important;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.65rem 1.2rem;
+  font:
+    600 1rem "Barlow",
+    sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+.boton:hover {
+  filter: brightness(1.08);
+}
+.boton.secundario {
+  background: transparent;
+  color: var(--tinta) !important;
+  border: 2px solid var(--tinta);
+}
+.boton:disabled {
+  background: var(--linea);
+  color: var(--suave) !important;
+  cursor: not-allowed;
+}
+.formulario {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 28rem;
+}
+.formulario label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+input,
+select {
+  width: 100%;
+  font: inherit;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+  background: #fff;
+}
+.errorlist {
+  color: var(--error);
+  margin: 0.2rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.9rem;
+}
+.ayuda {
+  color: var(--suave);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+/* ---- Avisos ---- */
+.aviso {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #e6f0ff;
+}
+.aviso.success,
+.aviso.ok {
+  background: #dff3e7;
+  color: #135c3a;
+}
+.aviso.warning {
+  background: #fff2cf;
+  color: #6b4b00;
+}
+.aviso.error {
+  background: #fbe1e0;
+  color: #8a1d1b;
+}
+
+/* ---- Tarjetas y grillas ---- */
+.tarjeta {
+  background: var(--tarjeta);
+  border: 1px solid var(--linea);
+  border-radius: 14px;
+  padding: 1.2rem;
+}
+.grilla {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+.etiqueta {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--suave);
+}
+.etiqueta.ACTIVA,
+.etiqueta.PERMITIDO,
+.etiqueta.CONFIRMADA {
+  background: var(--ok);
+}
+.etiqueta.VENCIDA,
+.etiqueta.DENEGADO {
+  background: var(--error);
+}
+.etiqueta.CONGELADA {
+  background: #2f6fb7;
+}
+.etiqueta.EN_ESPERA {
+  background: var(--alerta);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+th,
+td {
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid var(--linea);
+  text-align: left;
+  vertical-align: top;
+}
+.tabla {
+  overflow-x: auto;
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+}
+
+/* ---- Inicio ---- */
+.hero {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1.3fr 1fr;
+  align-items: center;
+  padding: 1.5rem 0 1rem;
+}
+.medidor {
+  background: var(--tinta);
+  color: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+.medidor .cifra {
+  font-family: var(--titulos);
+  font-size: 4.5rem;
+  line-height: 1;
+}
+.barra {
+  height: 14px;
+  background: #ffffff26;
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 0.8rem 0 0.4rem;
+}
+.barra span {
+  display: block;
+  height: 100%;
+  background: var(--ok);
+  transition: width 0.6s;
+}
+.barra span.medio {
+  background: var(--alerta);
+}
+.barra span.alto {
+  background: var(--error);
+}
+.plan .precio {
+  font-family: var(--titulos);
+  font-size: 2.2rem;
+}
+
+/* ---- Panel del socio ---- */
+.panel {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+}
+.qr img {
+  width: 100%;
+  max-width: 15rem;
+  display: block;
+  margin: 0.5rem auto;
+  background: #fff;
+}
+.qr code {
+  display: block;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--suave);
+  word-break: break-all;
+}
+.dias {
+  font-family: var(--titulos);
+  font-size: 3rem;
+  line-height: 1;
+}
+
+/* ---- Clases ---- */
+.clase {
+  display: grid;
+  grid-template-columns: 5rem 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+.clase .h {
+  font-family: var(--titulos);
+  font-size: 1.8rem;
+}
+.cupos {
+  font-size: 0.9rem;
+  color: var(--suave);
+}
+
+/* ---- Recepción: el veredicto ocupa toda la tarjeta ---- */
+.lector input {
+  font-size: 1.3rem;
+  padding: 0.9rem;
+}
+.veredicto {
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: var(--tarjeta);
+  border: 2px dashed var(--linea);
+  min-height: 12rem;
+}
+.veredicto h2 {
+  font-size: clamp(2.6rem, 8vw, 4.5rem);
+  margin: 0;
+}
+.veredicto.PERMITIDO {
+  background: var(--ok);
+  color: #fff;
+  border: 0;
+}
+.veredicto.DENEGADO {
+  background: var(--error);
+  color: #fff;
+  border: 0;
+}
+.veredicto .ms {
+  opacity: 0.85;
+  font-size: 0.95rem;
+}
+
+/* ---- Dashboard ---- */
+.tablero {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 18rem 1fr;
+}
+.anillo {
+  --p: 0;
+  width: 15rem;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--color, var(--ok)) calc(var(--p) * 1%),
+    var(--linea) 0
+  );
+  display: grid;
+  place-items: center;
+}
+.anillo > div {
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+.anillo .cifra {
+  font-family: var(--titulos);
+  font-size: 3.6rem;
+  line-height: 1;
+}
+.cifras {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+.cifras .n {
+  font-family: var(--titulos);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+@media (max-width: 760px) {
+  .hero,
+  .panel,
+  .tablero {
+    grid-template-columns: 1fr;
+  }
+  .clase {
+    grid-template-columns: 4rem 1fr;
+  }
+  .clase .acciones {
+    grid-column: 1 / -1;
+  }
+}

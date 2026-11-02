@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block titulo %}Aforo en tiempo real | FitLife{% endblock %}
+
+{% block contenido %}
+<h1>Aforo en tiempo real</h1>
+<p class="suave">Se actualiza solo cada 3 segundos. Última actualización: <span id="actualizado">--</span></p>
+
+<div class="tablero">
+  <section class="tarjeta">
+    <div class="anillo" id="anillo"><div>
+      <div class="cifra" id="actual">--</div>
+      <div class="suave">de {{ aforo_maximo }} personas</div>
+      <div id="porcentaje" class="suave"></div>
+    </div></div>
+  </section>
+
+  <section>
+    <div class="cifras">
+      <div class="tarjeta"><div class="n" id="entradas">--</div>entradas hoy</div>
+      <div class="tarjeta"><div class="n" id="denegados">--</div>accesos denegados</div>
+      <div class="tarjeta"><div class="n" id="ms">--</div>ms por validación (promedio)</div>
+      <div class="tarjeta"><div class="n" id="activas">--</div>membresías activas</div>
+    </div>
+    <h2>Clases de hoy</h2>
+    <div class="tabla"><table id="clases"></table></div>
+  </section>
+</div>
+
+<div class="panel" style="margin-top:1rem">
+  <section>
+    <h2>Últimos accesos</h2>
+    <div class="tabla"><table id="accesos"></table></div>
+  </section>
+  <section>
+    <h2>Personas dentro</h2>
+    <p id="dentro" class="suave">--</p>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const COLORES = { bajo: 'var(--ok)', medio: 'var(--alerta)', alto: 'var(--error)' };
+
+  async function refrescar() {
+    const r = await api('/api/dashboard/');
+    if (!r.ok) return;
+    const d = r.data;
+    $('#anillo').style.setProperty('--p', Math.min(d.porcentaje, 100));
+    $('#anillo').style.setProperty('--color', COLORES[d.nivel]);
+    $('#actual').textContent = d.aforo_actual;
+    $('#porcentaje').textContent = d.porcentaje + '% de ocupación';
+    $('#entradas').textContent = d.entradas_hoy;
+    $('#denegados').textContent = d.denegados_hoy;
+    $('#ms').textContent = d.tiempo_promedio_ms;
+    $('#activas').textContent = d.membresias.ACTIVA;
+    $('#actualizado').textContent = d.actualizado;
+    $('#clases').innerHTML = d.clases_hoy.length
+      ? '<tr><th>Hora</th><th>Clase</th><th>Inscritos</th><th>En espera</th></tr>' + d.clases_hoy.map(c =>
+          `<tr><td>${c.inicio}</td><td>${esc(c.nombre)}</td><td>${c.confirmadas}/${c.cupo}</td><td>${c.en_espera}</td></tr>`).join('')
+      : '<tr><td class="suave">No hay clases hoy.</td></tr>';
+    $('#accesos').innerHTML = d.ultimos_accesos.length
+      ? d.ultimos_accesos.map(a => `<tr><td>${a.hora}</td><td>${esc(a.socio)}</td>
+          <td><span class="etiqueta ${a.resultado}">${a.tipo === 'SALIDA' ? 'Salida' : a.resultado === 'PERMITIDO' ? 'Entrada' : 'Denegado'}</span>
+          ${a.resultado === 'DENEGADO' ? esc(a.motivo) : ''}</td></tr>`).join('')
+      : '<tr><td class="suave">Sin movimientos hoy.</td></tr>';
+    $('#dentro').textContent = d.dentro.length ? d.dentro.join(', ') : 'Nadie por ahora.';
+  }
+
+  refrescar();
+  setInterval(refrescar, 3000); // "tiempo real" por consulta periódica (polling)
+</script>
+{% endblock %}

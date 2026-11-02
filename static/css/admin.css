@@ -1,0 +1,31 @@
+/* Colores de FitLife aplicados al Django Admin */
+:root {
+  --header-bg: #10302a;
+  --header-branding-color: #ffffff;
+  --header-link-color: #ffffff;
+  --breadcrumbs-bg: #1b4a40;
+  --primary: #1b4a40;
+  --secondary: #10302a;
+  --accent: #ff5a1f;
+  --button-bg: #1b4a40;
+  --button-hover-bg: #10302a;
+  --default-button-bg: #ff5a1f;
+  --default-button-hover-bg: #e04a12;
+  --selected-row: #fff3ec;
+}
+#site-name a small {
+  font-size: 0.7em;
+  opacity: 0.75;
+  font-weight: 400;
+}
+.fl-atajo {
+  color: #fff !important;
+  margin-right: 1rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #ffffff55;
+  border-radius: 6px;
+  text-decoration: none;
+}
+.fl-atajo:hover {
+  background: #ffffff1a;
+}

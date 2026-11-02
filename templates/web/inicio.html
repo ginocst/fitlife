@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}FitLife: entrena sin filas{% endblock %}
+
+{% block contenido %}
+<section class="hero">
+  <div>
+    <h1>Entra con tu QR y reserva tu clase sin filas</h1>
+    <p>Muestra tu código en el torniquete, revisa cuánta gente hay antes de venir y asegura tu cupo
+    en Zumba o HIIT. Si la clase está llena, quedas en lista de espera y subes solo cuando se libera un cupo.</p>
+    <p>
+      {% if user.is_authenticated %}<a class="boton" href="{% url 'despues_login' %}">Ir a mi cuenta</a>
+      {% else %}<a class="boton" href="{% url 'registro' %}">Hazte socio</a>
+      <a class="boton secundario" href="{% url 'login' %}">Iniciar sesión</a>{% endif %}
+    </p>
+  </div>
+
+  <!-- Ocupación en vivo: se actualiza cada 10 segundos con /api/aforo/ (público) -->
+  <div class="medidor" aria-live="polite">
+    <div>Ocupación del gimnasio ahora</div>
+    <div class="cifra"><span id="porcentaje">--</span>%</div>
+    <div class="barra"><span id="barra" style="width:0"></span></div>
+    <div id="texto-aforo">Consultando...</div>
+  </div>
+</section>
+
+<h2>Planes</h2>
+<div class="grilla">
+  {% for plan in planes %}
+    <article class="tarjeta plan">
+      <h3>{{ plan.nombre }}</h3>
+      <div class="precio">{{ plan.precio_fmt }}</div>
+      <p class="suave">{{ plan.duracion_dias }} día{{ plan.duracion_dias|pluralize }} de acceso. {{ plan.descripcion }}</p>
+    </article>
+  {% empty %}
+    <p class="suave">Pronto publicaremos nuestros planes.</p>
+  {% endfor %}
+</div>
+<p class="suave">Los planes se pagan en recepción; tu membresía se activa en el momento.</p>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function actualizarAforo() {
+    const r = await api('/api/aforo/');
+    if (!r.ok) return;
+    const p = r.data.porcentaje;
+    const nivel = p >= 90 ? 'alto' : p >= 70 ? 'medio' : 'bajo';
+    $('#porcentaje').textContent = p;
+    $('#barra').style.width = Math.min(p, 100) + '%';
+    $('#barra').className = nivel;
+    $('#texto-aforo').textContent = { bajo: 'Tranquilo: buen momento para venir.',
+      medio: 'Moderado: algunas máquinas ocupadas.', alto: 'Muy lleno: considera venir más tarde.' }[nivel];
+  }
+  actualizarAforo();
+  setInterval(actualizarAforo, 10000);
+</script>
+{% endblock %}
